@@ -59,6 +59,7 @@ All traffic goes through Tor. Start Tor, then run the script:
 TOR_PROXY=socks5://127.0.0.1:9150 python app.py   # Tor Browser
 python app.py                                     # tor daemon on 9050
 ```
+On PowerShell: `$env:TOR_PROXY="socks5://127.0.0.1:9150"; python app.py`
 
 At startup the script checks Tor through the SOCKS proxy and prints the exit IP, then quits with a clear error if Tor is not running, so nothing leaks out over your real connection. DNS is resolved by Tor as well (Chrome sends hostnames over SOCKS5).
 
