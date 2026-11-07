@@ -223,9 +223,8 @@ def setDriver():
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
 
-    # Headless by default: no browser window pops up over your work.
-    # Set BROWSER_HEADLESS=0 to watch the browser (e.g. if Google blocks headless).
-    if os.getenv("BROWSER_HEADLESS", "1") == "1":
+    # Headful by default, so Chrome looks like a normal user. Set BROWSER_HEADLESS=1 to hide the window.
+    if os.getenv("BROWSER_HEADLESS") == "1":
         options.add_argument('--headless=new')
         options.add_argument('--window-size=1280,900')
 
