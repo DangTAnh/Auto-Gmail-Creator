@@ -3,5 +3,6 @@ requests[socks]
 selenium
 selenium_wire
 blinker<1.8
+pyopenssl<24
 setuptools<81
 webdriver_manager
