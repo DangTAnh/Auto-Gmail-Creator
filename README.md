@@ -24,7 +24,7 @@ You can customize this script to avoid getting blocked. I am also developing ano
 Also, Feel free to contact me if you have any project regarding Automation, Scraping, Machine Learning.
 
 ## Usage
-1. Install Python 3.x.
+1. Install Python 3.12 or 3.13 (3.15 has no prebuilt wheels for some dependencies yet).
 2. ```pip install -r requirements.txt``` 
 3. ```python app.py```
 4. 'Created.txt' will be generated for successful creation.
