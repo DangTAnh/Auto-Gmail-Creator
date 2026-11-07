@@ -7,17 +7,16 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.common.exceptions import *
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
+import os
 import time
 import random
 import datetime
 import requests
 import csv
 import string
-from fp.fp import FreeProxy
 from fake_useragent import UserAgent
 
 # Option for Auto User info generation
@@ -32,6 +31,9 @@ WAIT = 4
 
 # Max Retry to get phone number from sms-activate.org
 REQUEST_MAX_TRY = 10
+
+# Every request goes through Tor. tor daemon listens on 9050, Tor Browser on 9150.
+TOR_PROXY = os.getenv("TOR_PROXY", "socks5://127.0.0.1:9050")
 
 # Your SMS-Activate API key
 API_KEY = "8e49fdB90d0209c085dd1df56cedf00e" #9b6b9eb50d0A30---------d9b7495b
@@ -85,10 +87,6 @@ SITE_LIST = [
     'https://www.rachelbavaresco.com/',
     'https://lightning-bolt.webflow.io/'
 ]
-proxy_list = None
-with open("./data/Proxy_DB.csv", 'r') as proxy_list_file:
-    proxy_list = csv.reader(proxy_list_file)
-    proxy_list = list(proxy_list)
 
 def generatePassword():
     chars = string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
@@ -172,58 +170,36 @@ def getRandomeUserAgent():
     agent = random.choice(UAGENTS)
     return agent
 
+# Fail fast with a clear message if Tor is not running.
+def checkTor():
+    try:
+        r = requests.get(
+            "https://check.torproject.org/api/ip",
+            proxies={"http": TOR_PROXY, "https": TOR_PROXY},
+            timeout=30,
+        )
+        r.raise_for_status()
+        info = r.json()
+        print(f"################ Tor exit IP: {info.get('IP')} (IsTor={info.get('IsTor')}) ################")
+    except Exception as e:
+        print(f"################ Tor is not reachable at {TOR_PROXY} ################")
+        print("Start Tor (daemon: 9050, Tor Browser: 9150) or set TOR_PROXY=socks5://host:port")
+        print(e)
+        quit()
+
 # This method is for chrome driver initialization. You can customize if you want.
 def setDriver():
     seleniumwire_options = {}
-    seleniumwire_options['exclude_hosts'] = ['google-analytics.com']
 
     # Secure Connection
     # seleniumwire_options['verify_ssl'] = True
 
-    # Set Proxy
-    # proxy = getProxy() # Rotating proxy
-    SOCKS_PROXY = "socks5://14ab1e7131541:39d813de77@198.143.22.234:12324" # Fixed proxy, i.e socks5://14ab1e7131541:39d813de77@176.103.246.143:12324
-    # SOCKS_PROXY = "socks5://user:pass@ip:port" # Fixed proxy, i.e socks5://14ab1e7131541:39d813de77@176.103.246.143:12324
-    # SOCKS_PROXY = 'socks5://158.69.225.110:59166'
-
-    # https://pypi.org/project/free-proxy/
-    try:
-        random_proxy = FreeProxy(timeout=1).get()
-        print('################ Use FreeProxy library to get HTTP proxy ################')
-    except:
-        print('################ Use Proxy DB to get HTTP proxy ################')
-        random_proxy = "http://"+ random.choice(proxy_list)[0]
-
-    HTTP_PROXY = random_proxy
-    print(HTTP_PROXY)
-    # HTTPS_PROXY = "https://user:pass@ip:port"
-
-    # Proxy
-    proxy_options = {}
-    proxy_options['no_proxy']= 'localhost,127.0.0.1'
-
-    ## Http proxy
-    proxy_options['http'] = HTTP_PROXY
-
-    ## Https proxy
-    # proxy_options['https'] = HTTPS_PROXY
-
-    ## Socks proxy
-    proxy_options['http'] = SOCKS_PROXY
-    proxy_options['https'] = SOCKS_PROXY
-
+    # Everything goes through Tor, DNS included (Chrome hands hostnames to the
+    # SOCKS proxy). Nothing bypasses it, so no exclude_hosts of remote hosts.
+    proxy_options = {'no_proxy': 'localhost,127.0.0.1'}
+    proxy_options['http'] = TOR_PROXY
+    proxy_options['https'] = TOR_PROXY
     seleniumwire_options['proxy'] = proxy_options
-    # prox = Proxy()
-    # prox.proxy_type = ProxyType.MANUAL
-    # prox.socks_proxy = SOCKS_PROXY
-    # prox.socks_version = 5
-    # prox.http_proxy = HTTP_PROXY
-    # print(SOCKS_PROXY)
-    # prox.http_proxy = SOCKS_PROXY
-    # prox.https_proxy = SOCKS_PROXY
-
-    # capabilities = webdriver.DesiredCapabilities.CHROME
-    # prox.add_to_capabilities(capabilities)
 
     # Set User Agent
     # user_agent = getRandomeUserAgent() # Random user agent
@@ -259,6 +235,8 @@ def setDriver():
     return driver
 
 def main():
+    checkTor()
+
     user_number = 0
     i = 0
 

@@ -50,12 +50,17 @@ You can set this variant as "True" to use this functionality to automate generat
 ```
 AUTO_GENERATE_UERINFO = True
 ```
-### Proxy
-If you want to use socks proxy, please remove comment theses lines.
-[Free Proxy list](http://free-proxy.cz/en/proxylist/country/all/socks5/ping/all/2) is here
+### Proxy (Tor)
+All traffic goes through Tor. Start Tor, then run the script:
+- tor daemon (`tor` / Tor Expert Bundle): listens on `127.0.0.1:9050` (default, no config needed)
+- Tor Browser: listens on `127.0.0.1:9150`
+
+```bash
+TOR_PROXY=socks5://127.0.0.1:9150 python app.py   # Tor Browser
+python app.py                                     # tor daemon on 9050
 ```
-    SOCKS_PROXY = "socks5://user:pass@ip:port"
-```
+
+At startup the script checks Tor through the SOCKS proxy and prints the exit IP, then quits with a clear error if Tor is not running, so nothing leaks out over your real connection. DNS is resolved by Tor as well (Chrome sends hostnames over SOCKS5).
 
 ### Headless or With UI (Optional)
 ```

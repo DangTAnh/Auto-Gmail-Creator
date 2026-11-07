@@ -1,7 +1,7 @@
 fake_useragent
-fp
-free_proxy
-requests
+requests[socks]
 selenium
 selenium_wire
+blinker<1.8
+setuptools<81
 webdriver_manager
