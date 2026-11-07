@@ -223,7 +223,12 @@ def setDriver():
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
 
-    # options.add_argument('--headless') # UI
+    # Headless by default: no browser window pops up over your work.
+    # Set BROWSER_HEADLESS=0 to watch the browser (e.g. if Google blocks headless).
+    if os.getenv("BROWSER_HEADLESS", "1") == "1":
+        options.add_argument('--headless=new')
+        options.add_argument('--window-size=1280,900')
+
     # options.add_argument("--incognito")
     # options.add_argument(r"--user-data-dir=C:\\Users\\Username\\AppData\\Local\\Google\\Chrome\\User Data")
     # options.add_argument(r'--profile-directory=ProfileName')

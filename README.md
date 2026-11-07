@@ -63,10 +63,12 @@ On PowerShell: `$env:TOR_PROXY="socks5://127.0.0.1:9150"; python app.py`
 
 At startup the script checks Tor through the SOCKS proxy and prints the exit IP, then quits with a clear error if Tor is not running, so nothing leaks out over your real connection. DNS is resolved by Tor as well (Chrome sends hostnames over SOCKS5).
 
-### Headless or With UI (Optional)
+### Headless (default)
+No browser window opens, so it runs in the background while you work. To watch the browser (e.g. if Google blocks headless), set `BROWSER_HEADLESS=0`:
+```bash
+BROWSER_HEADLESS=0 python app.py
 ```
-    options.add_argument('--headless')
-```
+PowerShell: `$env:BROWSER_HEADLESS="0"; python app.py`
 
 ### Profile (Optional)
 You can add your own profile if you want by specifying the path.
